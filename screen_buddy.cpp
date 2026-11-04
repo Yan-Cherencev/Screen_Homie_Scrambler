@@ -8,10 +8,14 @@
 
 
 #include <shellapi.h>
+#include <gdiplus.h>
+
+#pragma comment(lib, "gdiplus.lib")
 
 #define MAX_LOADSTRING 100
 #define WM_WORKER_START  (WM_USER + 1)
 #define WM_WORKER_FINISH (WM_USER + 2)
+#define null NULL
 
 
 typedef bool (*crypto_init_func)(const unsigned char*, size_t);
@@ -104,7 +108,7 @@ std::wstring parse_file_name(const std::wstring file_path){
 
 void process_file_worker(HWND hWnd,std::wstring file_path){
 
-    PostMessageW(hWnd, WM_WORKER_START, 0, 0);
+    PostMessageW(hWnd, WM_WORKER_START, 0, 0);//начали
 
     std::wstring file_name = parse_file_name(file_path);
     std::wstring new_file_name =std::to_wstring(count_of_file++) + file_name;
@@ -150,7 +154,7 @@ void process_file_worker(HWND hWnd,std::wstring file_path){
 
     pcrypto_clean(); 
 
-    PostMessageW(hWnd, WM_WORKER_FINISH, 0, 0);
+    PostMessageW(hWnd, WM_WORKER_FINISH, 0, 0); //закончили
 }
 
 
@@ -159,6 +163,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_ LPWSTR    lpCmdLine,
                      _In_ int       nCmdShow)
 {
+    using namespace Gdiplus;
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
@@ -169,9 +174,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     LoadStringW(hInstance, IDC_SCREENBUDDY, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
 
+    GdiplusStartupInput start;
+    ULONG_PTR gdiplus_token;
+
+    GdiplusStartup(&gdiplus_token, &start, NULL);
+
     // Выполнить инициализацию приложения:
-    if (!InitInstance (hInstance, nCmdShow))
-    {
+    if (!InitInstance (hInstance, nCmdShow)){
         return FALSE;
     }
 
@@ -189,6 +198,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
     }
 
+    GdiplusShutdown(gdiplus_token);
     return (int) msg.wParam;
 }
 
@@ -219,6 +229,23 @@ ATOM MyRegisterClass(HINSTANCE hInstance){
     return RegisterClassExW(&wcex);
 }
 
+
+void updete_buddy_visuality(HWND hWnd, const WCHAR* image_path){
+    using namespace Gdiplus;
+
+    std::unique_ptr<Bitmap> bitmap(Bitmap::FromFile(image_path));
+    if(bitmap && bitmap->GetLastStatus() == Ok){
+
+        HDC hdc_screen = GetDC(null);
+        HDC hdc_memory = CreateCompatibleDC(hdc_screen);
+
+
+
+    }
+}
+
+
+
 //
 //   ФУНКЦИЯ: InitInstance(HINSTANCE, int)
 //
@@ -228,7 +255,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance){
 //
 //        В этой функции маркер экземпляра сохраняется в глобальной переменной, а также
 //        создается и выводится главное окно программы.
-//
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow){
    hInst = hInstance; // Сохранить маркер экземпляра в глобальной переменной
 
@@ -237,7 +263,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow){
 
    HWND hWnd = CreateWindowExW(WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_ACCEPTFILES, szWindowClass, szTitle, WS_POPUP, CW_USEDEFAULT, 0, HIGHT, WIDTH, nullptr, nullptr, hInstance, nullptr);
 
-   SetLayeredWindowAttributes(hWnd, 0, 128, LWA_ALPHA);
+   //SetLayeredWindowAttributes(hWnd, 0, 128, LWA_ALPHA);
 
    if (!hWnd){
       return FALSE;
@@ -347,13 +373,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             EndPaint(hWnd, &ps);
         }
         break;
-    case WM_DESTROY:
 
-        if (hPlugin){
+    case WM_WORKER_START: {
+        is_processing = true;
+    } break;
+
+    case WM_WORKER_FINISH: {
+        is_processing = false;
+        MessageBoxW(hWnd, L"Шифрование файла завершено!", L"Успех", MB_OK | MB_ICONINFORMATION);
+    } break;
+
+    case WM_DESTROY:{
+        if (hPlugin) {
             FreeLibrary(hPlugin);
         }
 
         PostQuitMessage(0);
+    }
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
