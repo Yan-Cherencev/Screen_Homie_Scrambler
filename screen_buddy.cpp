@@ -6,7 +6,7 @@
 #include "framework.h"
 #include "screen_buddy.h"
 
-
+#include <objidl.h> 
 #include <shellapi.h>
 #include <gdiplus.h>
 
@@ -33,8 +33,8 @@ HINSTANCE hInst;                                // текущий экземпл
 WCHAR szTitle[MAX_LOADSTRING];                  // Текст строки заголовка
 WCHAR szWindowClass[MAX_LOADSTRING];            // имя класса главного окна
 
-int HIGHT = 300.0;
-int WIDTH = 300.0; 
+int HIGHT = 300;
+int WIDTH = 300; 
 
 bool is_processing = false;
 

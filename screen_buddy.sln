@@ -5,7 +5,7 @@ VisualStudioVersion = 17.14.37216.2
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "screen_buddy", "screen_buddy.vcxproj", "{EC3F64B7-ED4A-4E59-A06C-F0CFBA4DE436}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "encryption_algorithm", "..\encryption_algorithm\encryption_algorithm.vcxproj", "{87578C3C-283C-4BD9-A85D-F908FB53515E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "encryption_algorithm", "encryption_algorithm\encryption_algorithm.vcxproj", "{87578C3C-283C-4BD9-A85D-F908FB53515E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{754FC069-D67B-A9D7-50A1-8D1CA196D8F1}"
 EndProject
